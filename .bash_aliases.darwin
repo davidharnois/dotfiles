@@ -1,0 +1,219 @@
+###################
+## .bash_aliases ##
+###################
+
+#export LSCOLORS='GxFxcxdxBxegedabagacad'
+
+## Aliases for listing methods
+alias ..='cd ..'
+alias ls='ls -FG'
+alias la='ls -la' 
+alias ll='ls -lah' 
+alias sl='ls'  
+alias lash='ls -lash'
+
+alias ios='cd /Users/davidh/dev/workspace/ios'
+alias rebuild='reinstall-all && buildweb install-test10k-real && build install-branch-version'
+
+alias preview='open -a Preview' 
+alias syslog='tail -f /srv/syslog/syslog'
+
+alias pay2rake='rake -f /Users/davidh/dev/workspace/pay2rake.rake '
+
+## SSH locations
+alias mp='ssh davidh-mp.zoosk.local'
+
+## Function to easily ssh into any Zoosk VM
+#function vm() {
+#
+## prepare argument for padding
+#    padded_num=$1
+#
+## determine amount of digits in the argument
+#    length=${#padded_num}
+#
+## throw an error if entered devID isn't a number
+##    if [ "$1" != "^[0-9]+$" ]; then
+##        echo "Usage: Please enter a devID number"
+##    return
+##    fi
+#
+## throw an error if user hasn't specified an argument
+#    if [ $length -eq 0 ]; then
+#        echo -e "Usage: Please specify a devID (e.g. 'vm 907') or type 'vm --help'\n"
+#
+#    return
+#    fi
+#    
+#    if [ "$1" == '--help' -o "$1" == '-help' -o "$1" == '-h' ]; then
+#        echo "usage: vm <devID> (You do not need to pad the number with a 0)"
+#        echo -e "          [--help]\n"
+#        echo "The list of user VMs are:"
+#        echo "    0     Astro A"
+#        echo "    9     Jay K"
+#        echo "   10     Eric N"
+#        echo "   15     Peter S"
+#        echo "   22     Judy S"
+#        echo "   71     Khyati D"
+#        echo "   74     David H"
+#        echo "  901     iOS Automation"
+#        echo "  907     QA Automation"
+#        echo "  908     QA Automation"
+#        echo "  909     QA Automation"
+#        echo "  910     QA Automation"
+#        echo "  952     PM Testing"
+#
+#    return
+#    fi
+#    
+## logic in place with the assumption that VMs will not contain more than 3 digits
+#    if [ $length -eq 1 ]; then
+#        padded_num=00${padded_num}
+#    
+#    elif [ $length -eq 2 ]; then
+#        padded_num=0${padded_num}
+#
+## throw an error if the devId is longe than 3 digits    
+#    elif [ $length -ge 4 ]; then
+#        echo "Oops: A devID can't be more than 3 digits"
+#
+#    return     
+#    fi
+#
+#    ssh www${padded_num}.sfo2.zoosk.com
+#}
+#
+## Function to clear memcache on a specified VM
+function mem() {
+
+    length=${#1}
+
+# verifies the user has specified a devID    
+    if [ $length -eq 0 ]; then
+        echo -e "Usage: Please specify a devID (e.g. 'mem 907')\n"
+
+    return
+    fi
+
+# checks the length of the devID and pads it accordingly to form a 3 digit number
+    if [ $length -eq 1 ]; then
+        padded_num=00${1}
+
+    elif [ $length -eq 2 ]; then
+        padded_num=0${1}
+
+    elif [ $length -ge 4 ]; then
+        echo "A DevID can't be more than 3 digits"
+
+    return
+    fi
+
+# if specified devID is owned by user, opens ssh connection, clears memcache, print success then disconnects the ssh connection
+    if [ ${1} = ${DEVID} ]; then
+        ssh www${padded_num}.sfo2.zoosk.com
+        php /srv/dev${1}/current/web/test/data/memcached_flush.php
+        echo "Memcache flushed on www${padded_num}.sfo2.zoosk.com"
+        ssh -t www${padded_num}.sfo2.zoosk.com
+
+    return
+    fi
+
+# checks that specified VM is owned by user, if not, prompt user to confirm by enterring 'y', 'yes', 'n' or 'no' 
+    if [ ${1} != ${DEVID} ]; then
+        read -p "DevID ${1} is not your personal VM. Are you sure you want to clear memcache on VM${1}? (y/n) : " RESP
+
+        if [ "$RESP" = "y" -o "$RESP" = "yes" ]; then
+            echo "Ok let's do this!"
+            ssh www${padded_num}.sfo2.zoosk.com
+            php /srv/dev${1}/current/web/test/data/memcached_flush.php
+            echo "Memcache flushed on www${padded_num}.sfo2.zoosk.com"
+            ssh -t www${padded_num}.sfo2.zoosk.com
+
+        elif [ "$RESP" = "n" -o "$RESP" = "no" ]; then
+            echo -e "\nYeah, didn't think so!"
+
+        elif [ "$RESP" != "y" -o "$RESP" != 'n' -o "$RESP" != "yes" -o "$RESP" != "no" ]; then
+            echo -e "\nPlease type 'y' or 'n'"
+        fi
+    fi
+}
+
+
+## Include the phing-related aliases 
+
+if [ -f $HOME/.phing_aliases ]; 
+then
+    . $HOME/.phing_aliases 
+fi  
+
+#----------------------------------- 
+# Process/system related functions: 
+#-----------------------------------  
+function my_ps() { 
+    ps $@ -u $USER -o pid,%cpu,%mem,bsdtime,command ; 
+} 
+
+function pp() { 
+    my_ps f | awk '!/awk/ && $0~var' var=${1:-".*"} ; 
+}  
+
+alias reload-aliases='. $HOME/.bash_aliases && echo "Bash aliases reloaded"'
+
+
+alias php="/Applications/XAMPP/xamppfiles/bin/php"
+alias globals-recreate='(reset-work && build-web install-global-props)'
+
+
+alias install-all='(install-most && build-web install-test-200xn)'
+alias install-comm='build install-community && build install-commauth-zoosk && build install-zoosk-comm-template'
+alias install-most='(build install-tools install-schwartz install-web install-web-test install-finance build-thrift-php-interface)'
+alias install-schwartz='build upgrade-tools install-schwartz'
+alias install-scripts='build install-scripts'
+alias install-services='build install-services'
+alias install-test='build-web install-test'
+alias install-services='build install-services'
+alias install-test='build-web install-test'
+alias phing='phing -logger phing.listener.DefaultLogger'
+alias reinstall-all='(del-work && install-all)'
+alias reinstall-most='(del-work && install-most)'
+alias reload-aliases='. $HOME/.zoosk_aliases && echo "Zoosk aliases reloaded"'
+alias reset-work='(rm $DEPLOYMENT/appdata.php && rm $DEPLOYMENT/globals.php)'
+
+alias upgrade-admin='build-web install-web-admin'
+alias upgrade-api='build-web install-web-api'
+alias upgrade-bebo='build-web install-web-bebo'
+alias upgrade-ca='build-web install-codeahead-zoosk'
+alias upgrade-controls='build-web install-controls-zoosk'
+alias upgrade-facebook='build-web install-web-facebook'
+alias upgrade-friendster='build-web install-web-friendster'
+alias upgrade-hi5='build-web install-web-hi5'
+alias upgrade-mobile='build-web install-web-mobile'
+alias upgrade-most='build-web upgrade && date && build upgrade-tools && build-web install-static-zoosk && build-web install-codeahead-zoosk && build web install-web-include && build-web install-web-api'
+alias upgrade-myspace='build-web install-web-myspace'
+alias upgrade-pinc='build-web install-web-include'
+alias upgrade-static='build-web install-static-zoosk'
+alias upgrade-store='build-web install-web-store'
+alias upgrade-tag='build-web install-web-tagged'
+alias upgrade-tools='build upgrade-tools'
+alias upgrade-upload='build-web install-web-photoupload'
+alias upgrade-work='build-web upgrade && date'
+alias upgrade-www='build-web install-web-www'
+
+## Zephyr Build
+# Prompt to remind not to build zephyr in prod mode
+#alias build='read -p "!!!!! ARE YOU IN PROD MODE? !!!!!" && build' 
+
+
+##Android SDK
+
+#Screenshot
+alias screenshot='adb shell screencap -p | perl -pe "s/\x0D\x0A/\x0A/g" > ~/Desktop/screenshot.png'
+
+
+###############
+
+# Change this to be your Dev Id
+export DEVID=74
+
+
+####  EOF  ####

@@ -1,0 +1,46 @@
+###############
+##  .bashrc  ##
+###############
+
+
+## Colors
+export BOLD="$(tput bold)"
+export DIM="$(tput dim)"
+export UNDERLINE="$(tput smul)"
+export BLACK="$(tput setaf 0)"
+export RED="$(tput setaf 1)"
+export GREEN="$(tput setaf 2)"
+export YELLOW="$(tput setaf 3)"
+export BLUE="$(tput setaf 4)"
+export MAGENTA="$(tput setaf 5)"
+export CYAN="$(tput setaf 6)"
+export WHITE="$(tput setaf 7)"
+export TXTRESET="$(tput sgr0)"
+
+## Command prompt
+# Active
+
+
+#if [ uname = 'Darwin' ]; then
+#    PS1='DARWIN $ '
+#
+#elif [[ $HOSTNAME =~ /^m[a-z]{5}s$/g ]]; then
+
+PS1='------ \d \t -- \[${YELLOW}\]$(git_branch repo)\[${TXTRESET}\] ------\n $(if [[ $? == 0 ]]; then echo "\[${GREEN}\]\342\234\223"; else echo "\[${RED}\]\342\234\227"; fi) \[${TXTRESET}\]\u\[${CYAN}\]@\h\[${GREEN}\] \w $\[${TXTRESET}\] '
+
+#fi
+
+#PS1='------ \d \t -- \[$(tput setaf 3)\]$(git_branch repo)\[$(tput sgr0)\] ------\n $(if [[ $? == 0 ]]; then echo "\[\033[00;32m\]\342\234\223"; else echo "\[\033[00;31m\]\342\234\227"; fi) \[$(tput sgr0)\]\u\[\033[00;36m\]@\h\[\033[00;32m\] \w $\[$(tput sgr0)\] '
+
+# Disabled
+
+#PS1='------ \d \t ------ \n$(if [[ $? == 0 ]]; then echo "\[\033[00;32m\]\342\234\223"; else echo "\[\033[00;31m\]\342\234\227"; fi) \[$(tput sgr0)\]\u\[\e[0;36m\]@\h\[$(tput setf 2)\] \w $\[$(tput sgr0)\] '
+
+#PS1='----------------------------------------------------------------------------$(if [[ $? == 0 ]]; then echo "\[\033[00;32m\]\342\234\223"; else echo "\[\033[00;31m\]\342\234\227"; fi) \[\033[00;37m\]\u\[\033[01;37m\]@\h\[\033[01;32m\] \w $\[$(tput sgr0)\] '
+
+#PS1='\[\033[00;37m\]\u\[\033[00;36m\]@\h \[\033[00;32m\]\W\ $\[$(tput sgr0)\] '
+
+#Add Git Branch
+#$(__git_ps1 "(%s)")
+
+#####  EOF  #####

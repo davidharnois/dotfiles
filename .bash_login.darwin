@@ -1,0 +1,64 @@
+# This tells bash where to look for important command-line binaries
+export PATH="$HOME/bin":"/opt/subversion/bin/":"/Applications/xampp/xamppfiles/bin":$PATH
+
+# Set the Environment variable for maven
+export M2_HOME=/Applications/apache-maven-3.2.3
+export PATH=$PATH:$M2_HOME/bin
+
+# This prevents OSX from doing silly things with its extended attributes
+export COPYFILE_DISABLE=true
+
+# This fixes a bug in phing, a tool we use to deploy Zoosk source code
+alias phing='phing -logger phing.listener.DefaultLogger'  
+
+# This runs another file for setting up convenient phing build aliases
+if [ -f $HOME/.zoosk_aliases ]; then
+    . $HOME/.zoosk_aliases 
+fi  
+
+# This runs another file for setting bash aliases
+if [ -f $HOME/.bash_aliases ]; then
+    . $HOME/.bash_aliases 
+fi
+
+# This grabs the branch from your current git repo
+
+function git_branch () {
+
+        branch=`svn info 2>/dev/null | grep s.zoosk.com/ | sed -E -e 's/^.+\/([0-9a-z\-]+)$/\1/' -e 's/[^0-9a-z\-]*//' `;
+
+        if [ "$branch" ]; then
+                if [ "$1" = "repo" ]; then
+                        echo "svn/$branch"
+                else
+                        echo $branch
+                fi;
+
+                return 0;
+        fi;
+
+        branch=`git branch 2>/dev/null | sed -E  -e "/^[^\*]/d" -e 's/[^0-9a-z\-_]*//' `;
+        if [ "$branch" ]; then
+                if [ "$1" = "repo" ]; then
+                        echo "$branch"
+                else
+                        echo $branch
+                fi;
+                return 0;
+        fi;
+}
+export -f git_branch;   
+
+
+# zli bash completion
+eval "$(_ZLI_COMPLETE=source zli)"
+
+
+alias zenv=/Users/davidh/dev/workspace/zenv/activate.sh
+
+### BEGIN ZENV INIT
+source '/Users/davidh/.zenvrc'
+if [ -z "$ZENV_CURRENT_WORK" -a -n "$(grep -m 1 ZENV "$ZENV_WORKSPACE_SETTINGS" 2>/dev/null)" ]; then 
+    use $(python -c "from os import path; print path.relpath('${PWD}', '${ZENV_WORKSPACE}')")
+fi
+### END ZENV INIT

@@ -1,0 +1,65 @@
+###########################
+##  .bash_aliases.linux  ##
+###########################
+
+
+export LSCOLORS='GxFxcxdxBxegedabagacad'
+
+## Aliases for listing methods
+alias ..='cd ..'
+alias ls='ls -FG'
+alias la='ls -la'
+alias ll='ls -lah'
+alias sl='ls'
+alias lash='ls -lash'
+
+
+## Function to easily ssh to Zoosk VMs
+function vm() {
+# prepare argument for padding
+    padded_num=$1
+
+# determine amount of digits in the argument
+    length=${#padded_num}
+
+# throw an error if user hasn't specified an argument
+    if [ $length -eq 0 ]; then
+        echo -e "Oops: Please specify a devID (e.g. 907) or type 'vm --help'\n"
+    return
+
+    elif [ "$1" = "--help" ]; then
+        echo "usage: vm <devID> (You do not need to pad the number with a 0)"
+        echo -e "          [--help]\n"
+        echo "The list of user VMs are:"
+        echo "    0     Astro A"
+        echo "    9     Jay K"
+        echo "   10     Eric N"
+        echo "   15     Peter S"
+        echo "   22     Judy S"
+        echo "   71     Khyati D"
+        echo "   74     David H"
+        echo "  901     iOS Automation"
+        echo "  907     QA Automation"
+        echo "  908     QA Automation"
+        echo "  909     QA Automation"
+        echo "  910     QA Automation"
+    return
+
+# logic in place with the assumption that VMs will not contain more than 3 digits
+    elif [ $length -eq 1 ]; then
+        padded_num=00${padded_num}
+
+    elif [ $length -eq 2 ]; then
+        padded_num=0${padded_num}
+# throw an error if the devId is longe than 3 digits
+    elif [ $length -ge 4 ]; then
+        echo "Oops: A devID can't be more than 3 digits"
+
+    return
+
+    fi
+
+    ssh www${padded_num}.sfo2.zoosk.com
+}
+
+####  EOF  ####
